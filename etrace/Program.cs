@@ -251,7 +251,7 @@ namespace etrace
                 WatchedEvent watchedEvent;
                 if (_eventMonitor.Process(e.EventName, out watchedEvent))
                 {
-                    //TODO: TakeEvent(e);
+                    TakeEvent(e, description: $"Elapsed time : {watchedEvent.TimeStamp.TotalMilliseconds} ms");
                 }
             }
             else

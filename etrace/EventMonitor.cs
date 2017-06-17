@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Diagnostics.Tracing;
 using System.Diagnostics;
+using System.Collections.Concurrent;
 
 namespace etrace
 {
@@ -19,12 +20,33 @@ namespace etrace
     {
         public EventMonitor()
         {
-            _motitoredMap = new Dictionary<string, WatchedEvent>();
+            _motitoredMap = new ConcurrentDictionary<string, WatchedEvent>();
         }
 
-        private Dictionary<string, WatchedEvent> _motitoredMap;
+        private ConcurrentDictionary<string, WatchedEvent> _motitoredMap;
+
+        private object _sync = new object();
 
         private Stopwatch _stopwatch;
+
+        public Stopwatch Stopwatch
+        {
+            get
+            {
+                if (_stopwatch == null)
+                {
+                    lock (_sync)
+                    {
+                        if (_stopwatch == null)
+                        {
+                            _stopwatch = new Stopwatch();
+                            _stopwatch.Start();
+                        }
+                    }
+                }
+                return _stopwatch;
+            }
+        }
 
         internal void Monitor(string startEvent, string endEvent)
         {
@@ -45,28 +67,23 @@ namespace etrace
 
             if (IsMonitored(eventName))
             {
-                var e = _motitoredMap[eventName];
+                watchedEvent = _motitoredMap[eventName];
 
-                if (e.StartEvent == eventName)
+                if (watchedEvent.StartEvent == eventName)
                 {
-                    if (_stopwatch == null)
-                    {
-                        _stopwatch = new Stopwatch();
-                        _stopwatch.Start();
-                    }
-
-                    e.TimeStamp = _stopwatch.Elapsed;
+                    watchedEvent.TimeStamp = Stopwatch.Elapsed;
                 }
                 else
                 {
-                    watchedEvent.TimeStamp = _stopwatch.Elapsed - e.TimeStamp;
+                    WatchedEvent removed; 
+                    watchedEvent.TimeStamp = Stopwatch.Elapsed - watchedEvent.TimeStamp;
                     result = true;
                 }
             }
 
-            if(!_motitoredMap.Any())
+            if (!_motitoredMap.Any())
             {
-                _stopwatch.Stop();
+                Stopwatch.Stop();
             }
 
             return result;
