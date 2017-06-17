@@ -79,6 +79,13 @@ namespace etrace
             )]
         public int DurationInSeconds { get; set; } = 0;
 
+        [Option("monitorStart", Required = false, HelpText = "Monitor given event time from")]
+        public string MonitorStart { get; set; }
+
+        [Option("monitorEnd", Required = false, HelpText = "Monitor given event time from")]
+        public string MonitorEnd { get; set; }
+
+
         [HelpOption]
         public string Usage()
         {

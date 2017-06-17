@@ -238,15 +238,21 @@ namespace etrace
                     }
                 }
             }
-            else
+            if(!string.IsNullOrEmpty(options.MonitorStart) && !string.IsNullOrEmpty(options.MonitorEnd))
             {
-
+                MonitorEvent(e, options);
             }
+            else
             {
                 TakeEvent(e);
             }
         }
 
+        private static void MonitorEvent(TraceEvent e, Options options)
+        {
+            throw new NotImplementedException();
+        }
+        
         private static void TakeEvent(TraceEvent e, string description = null)
         {
             if (description != null)
