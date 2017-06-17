@@ -208,7 +208,7 @@ namespace etrace
         public bool IsFileSession => !String.IsNullOrEmpty(File);
         public long ParsedClrKeywords { get; private set; } = 0;
         public KernelTraceEventParser.Keywords ParsedKernelKeywords { get; private set; } = KernelTraceEventParser.Keywords.None;
-
+        public bool IsMontoring => !string.IsNullOrEmpty(this.MonitorStart) && !string.IsNullOrEmpty(this.MonitorEnd);
 
         public class MultipleFilter : Filter
         {

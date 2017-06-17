@@ -31,18 +31,18 @@ namespace etrace
                 return;
             }
 
+            if (options.IsMontoring)
+            {
+                _eventMonitor = new EventMonitor();
+                _eventMonitor.Monitor(startEvent: options.MonitorStart, endEvent: options.MonitorEnd);
+            }
+
             // TODO Can try TraceLog support for realtime stacks as well
             // TODO One session for both kernel and CLR is not supported on Windows 7 and older
 
             sessionStartStopwatch = Stopwatch.StartNew();
             Console.WriteLine($"Processing start time: {DateTime.Now}");
             CreateEventProcessor();
-
-            if (!string.IsNullOrEmpty(options.MonitorStart) && !string.IsNullOrEmpty(options.MonitorEnd))
-            {
-                _eventMonitor = new EventMonitor();
-                _eventMonitor.Monitor(startEvent: options.MonitorStart, endEvent: options.MonitorEnd);
-            }
 
             using (eventProcessor)
             {
@@ -244,6 +244,14 @@ namespace etrace
                         TakeEvent(e);
                         break;
                     }
+                }
+            }
+            else if (options.IsMontoring)
+            {
+                WatchedEvent watchedEvent;
+                if (_eventMonitor.Process(e.EventName, out watchedEvent))
+                {
+                    //TODO: TakeEvent(e);
                 }
             }
             else
