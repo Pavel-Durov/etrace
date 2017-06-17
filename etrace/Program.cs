@@ -18,6 +18,7 @@ namespace etrace
         static private ulong notFilteredEvents = 0;
         static private Stopwatch sessionStartStopwatch;
         static private bool statsPrinted = false;
+        static private EventMonitor _eventMonitor;
 
         static void Main(string[] args)
         {
@@ -36,6 +37,13 @@ namespace etrace
             sessionStartStopwatch = Stopwatch.StartNew();
             Console.WriteLine($"Processing start time: {DateTime.Now}");
             CreateEventProcessor();
+
+            if (!string.IsNullOrEmpty(options.MonitorStart) && !string.IsNullOrEmpty(options.MonitorEnd))
+            {
+                _eventMonitor = new EventMonitor();
+                _eventMonitor.Monitor(startEvent: options.MonitorStart, endEvent: options.MonitorEnd);
+            }
+
             using (eventProcessor)
             {
                 if (options.IsFileSession)
@@ -238,21 +246,12 @@ namespace etrace
                     }
                 }
             }
-            if(!string.IsNullOrEmpty(options.MonitorStart) && !string.IsNullOrEmpty(options.MonitorEnd))
-            {
-                MonitorEvent(e, options);
-            }
             else
             {
                 TakeEvent(e);
             }
         }
 
-        private static void MonitorEvent(TraceEvent e, Options options)
-        {
-            throw new NotImplementedException();
-        }
-        
         private static void TakeEvent(TraceEvent e, string description = null)
         {
             if (description != null)
